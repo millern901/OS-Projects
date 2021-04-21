@@ -1,0 +1,192 @@
+.TH Manual "Project 2"
+.SH Name
+P2: POSIX Standards & Bindings
+.SH Synopsis
+.PP
+The goal of this project was to utilize the POSIX system library to read a text file and return it's contents as a C-style string.
+.PP
+.SH Description
+.B displayfile/read_file.h
+.RS
+.PP
+This file contains the declaration of read_file().
+.PP
+.RE
+.B displayfile/read_file.cpp
+.RS
+.PP
+This file contains the definition of read_file() as follows:
+.PP
+.PP
+First, 
+.B "(access(filename,F_OK)!=-1)"
+is used to determine if the file is accessable.
+.PP
+.PP
+If it isn't accessable, return a nullptr.
+.PP
+.PP
+Otherwise, open the file as read-only using 
+.B "fopen(filename,'r');".
+Then, determine the length of the file by moving to EOF, storing the offset, and moving to the beginning of the file respectfully by:
+.RS
+.PP
+.B "fseek(fd,0L,SEEK_END);"
+.PP
+.RE
+.RS
+.PP
+.B "length=ftell(fd);"
+.PP
+.RE
+.RS
+.PP
+.B "fseek(fd,0L,SEEK_SET);"
+.PP
+.RE
+.PP
+.PP
+Then, allocate a buffer large enough to hold the file contents, post-pended by the null-termination character by:
+.RS
+.PP
+.B "char *buffer=(char*)malloc(sizeof(char)*(file_length+1));"
+.PP
+.RE
+.PP
+.PP
+Then, read the file characters and store them in the buffer by:
+.RS
+.PP
+.B "fread(buffer,sizeof(char),length,fd);"
+.PP
+.RE
+.PP
+.PP
+Finally, close the file using 
+.B fclose(fd);
+and return the buffer.
+.PP
+.RE
+.B displayfile/displayfile.cpp
+.RS
+.PP
+This file contains an implemention of read_file(). When run, it calls 
+.B read_file() 
+using the filename passed in the terminal and stores the result in a buffer. If the buffer is a nullptr, the appropriate response is printed. Otherwise, the buffer is printed and its memory is freed. 
+.PP
+.RE
+.B nativeapp/app/src/cpp/
+.RS
+.PP
+The read_file.cpp/h files were copied into this directory, so the application could implement/execute read_file().
+.PP
+.RE
+.B nativeapp/app/CMakeLists.txt
+.RS
+.PP
+The relative paths of read_file.cpp/h were added in the add_library section to ensure they would compile and be accessable to native-call.cpp.
+.PP
+.RE
+.B nativeapp/app/src/java/edu/ufl/cise/os/p2/P2Activity.java
+.RS
+.PP
+The first addition was three GUI elements declared by:
+.RS
+.PP
+.B "private element_type element_name;"
+.PP
+.RE
+This was done using the specified schema for the submitButton, displayBox, and filenameBox and ensures the elements are presistent in the application.
+.PP
+.PP
+The second addition was the initialization of the GUI elements by:
+.RS
+.PP
+.B "element_name=(element_type)findViewById(R.id.element_name);"
+.PP
+.RE
+This was done inside of the 
+.B onCreate
+function and ensures the elements are viewable.
+.PP
+.PP
+The final addition was a 
+.B setOnClickListener() 
+for the submitButton that calls a new 
+.B onClick()
+event. 
+This event will store the filename currently in the filenameBox. Then, display the contents of the 
+.B stringFromJNI()
+call with the filename in the displayBox.
+.PP
+.RE
+.B nativeapp/app/src/cpp/native-calls.cpp
+.RS 
+.PP
+The first addition was a filename argument for stringFromJNI(), which would allow the filename to be passed from the java application. Then,
+.B "read_file(filename);"
+was called with filename
+.B "env->GetStringUTFChars(filename,0)"
+which converts the Java string into a C-style string without copying, and stores the return value in a buffer.
+.PP
+.PP
+Then, If the buffer is a nullptr, the appropriate response is returned. Otherwise, the buffer is stored in a jstring and its memory is freed. In both cases, the return value was defined by:
+.RS
+.PP
+.B "env->NewStringUTF(string_val);"
+.PP
+.RE
+This converts the C-style string to a Java string.
+.PP
+.RE
+.SH TESTING
+.PP
+.RS
+1) displayfile.tgz decompressed and displayfile.cpp compiled.
+.RE
+.RS
+2) Displayfile was run using accessable/unaccessable files with absolute/relative paths.
+.RE
+.RS
+3) nativeapp.zip was unzipped and compiled in Android Studio connected to the VM.
+.RE
+.RS
+4) Application was run using the same files, prepended with /mnt/ubuntu/.
+.RE
+.RS
+5) Memory leaks checked using valgrind and memory profiler.
+.RE
+.PP
+.SH BUGS
+.PP
+No bugs encountered.
+.PP
+.SH LINK
+.PP
+https://youtu.be/5NXcyeffUgQ
+.PP
+.SH REFERENCES/CITATIONS
+.PP
+https://www.mkompf.com/cplus/posixlist.html
+.PP
+.PP
+http://www.cplusplus.com/reference/cstdio/
+.PP
+.PP
+https://stackoverflow.com/questions/238603/how-can-i-get-a-files-size-in-c
+.PP
+.PP
+http://www.cplusplus.com/reference/cstdlib/malloc/
+.PP
+.PP
+https://stackoverflow.com/questions/230062/whats-the-best-way-to-check-if-a-file-exists-in-c
+.PP
+.PP
+https://fresh2refresh.com/c-programming/c-file-handling/fseek-seek_set-seek_cur-seek_end-functions-c/
+https://developer.android.com/reference/android/widget/Button
+.PP
+.SH AUTHOR
+.PP
+Nicholas Miller
+.PP
+

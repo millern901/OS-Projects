@@ -1,0 +1,107 @@
+.TH Manual "Project 1"
+.SH Name
+P1: System Calls
+.SH Synopsis
+.PP
+The goal of this project was to create a kernel-wide process log level attribute that can be read, set and used to log messages via syscalls and to create a user-defined library to execute the syscalls from the user-space.
+.PP
+.SH Description
+.PP
+For all kernel files change, I located the files using the second link in the P1 assignment, which showed how/what files needed to be updated.
+.PP
+.B arch/x86/entry/syscalls/syscall_64.tbl
+.RS
+.PP
+In this file three syscall entries were instered at the end of the x64 table. The entries had the syscall numbers of 435, 436 and 437 for syscalls get_proc_log_level, set_proc_log_level and proc_log_message respectfully and have the form:
+.PP
+.RS
+.B "syscall_#	common	syscall_name	__x64_sys_syscall_name" 
+.RE
+.PP
+These additions were nesseccary since we needed to define an abi for the syscalls so they could be located by the kernel. 
+.PP
+.RE
+.B include/linux/syscalls.h
+.RS
+.PP
+In this file three asmlinkages were defined for the syscalls. 
+These asmlinkages were inserted under the asmlinkage for sys_lstat64 and have the form:
+.PP
+.RS
+.B "asmlinkage int sys_syscall_name(param_type param_name,...);
+.RE
+.PP
+These additions were nessecary because the syscalls needed to be linked to their function prototypes as well as to tell the 
+compiler to locate function parameters on the CPU stack rather then inside registers so kernel information is not corrupted.
+.PP
+.RE
+.B kernel/sys.c
+.RS
+.PP
+In this file the kernel-wide attribute and implementations of syscalls were inserted at the end of the file. 
+The attribute was an integer variable set equal to zero above the syscall implementations. 
+The syscall implementation were defined using the SYSCALL_DEFINE# macro, were # represents the number of syscall parameters.
+The implementations have the form:
+.PP
+.RS
+.B "SYSCALL_DEFINE#(syscall_name,param_type,param_name,...]){Implementation}"				
+.RE
+.PP
+These additions were nessecary because it tells kernel what needs to be executed when the syscall is invoked.
+.PP
+.RE	
+.B */process_log/process_log.h
+.RS
+.PP
+This file is the header for the user-defined process_log library. 
+This file contains all nesseccary declarations for all the library/harness functions required for the P1 assignment.
+.PP
+.RE
+.B */process_log/process_log.c
+.RS
+.PP
+This file is the source code for the user-defined process_log library. 
+This file contains all nesseccary code needed to execute all the library/harness functions defined in the process_log.h file.
+The command used to call the syscalls from user-space was:
+.PP
+.RS
+.B "syscall(syscall_number,[parameter_values]);"
+.RE
+.PP
+.PP
+.RE
+.B */process_log/Makefile
+.RS
+.PP		
+The purpose of this file is to compile/make the files in the user-defined process_log library. 
+The file contains the commands to compile the 
+.B process_log.o 
+output file and create the 
+.B libprocess_log.a 
+archive file.
+.PP
+.RE
+.SH TESTING
+.PP
+The first step of testing was to apply all changes, run the full make and reboot the VM. 
+The second step was to transfer the user-defined library and assignment testing files into the VM and run all make/compile commands. 
+The final step was to test each syscall independently until they were working correctly and then run the library/harness tests to ensure completeness.
+.PP
+.SH BUGS
+.PP
+Bugs weren't encountered.
+.PP
+.SH LINK
+.PP
+https://youtu.be/rM9_8DryAXE
+.PP
+.SH REFERENCES/CITATIONS
+.PP
+https://williamthegrey.wordpress.com/2014/05/18/add-your-own-system-calls-to-the-linux-kernel/
+https://unix.stackexchange.com/questions/132224/is-it-possible-to-get-process-group-id-from-proc
+https://blog.packagecloud.io/eng/2016/04/05/the-definitive-guide-to-linux-system-calls/
+.PP
+.SH AUTHOR
+.PP
+Nicholas Miller
+.PP
